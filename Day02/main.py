@@ -1,17 +1,42 @@
-# Iterate over lines, calculate the differences between consecutive numbers and check if they are in the correct range
-# (1 to 3) and have the same sign
-with open('input.txt', 'r') as file:
-    safe_reports = 0
-    for line in file:
-        numbers = list(map(int, line.split()))
-        is_safe = True
-        for i in range(len(numbers) - 1):
-            diff = numbers[i + 1] - numbers[i]
-            if i == 0:
-                sign = diff > 0
-            if sign != (diff > 0) or not 1 <= abs(diff) <= 3:
-                is_safe = False
-                break
-        if is_safe:
-            safe_reports += 1
-print(safe_reports)
+# Read input file and split into lists of integers
+with open('input.txt') as f:
+    reports = [list(map(int, line.split())) for line in f]
+
+
+# Part One: Check how many reports are safe
+def is_safe(report):
+    if len(report) < 2:
+        return True
+    safe = True
+    sign = None
+    for i in range(len(report) - 1):
+        diff = report[i + 1] - report[i]
+        if not 1 <= abs(diff) <= 3:
+            safe = False
+            break
+        if i == 0:
+            sign = diff > 0
+        elif sign != (diff > 0):
+            safe = False
+            break
+    return safe
+
+
+print(f"Part One: {sum(is_safe(report) for report in reports)}")
+
+
+# Part Two: Check how many reports are safe with problem dampener
+def is_safe_dampener(report):
+    if is_safe(report):
+        return True
+    for i in range(len(report)):
+        if i > 0 and is_safe(report[:i - 1] + report[i:]):
+            return True
+        if is_safe(report[:i] + report[i + 1:]):
+            return True
+        if i + 1 < len(report) and is_safe(report[:i + 1] + report[i + 2:]):
+            return True
+    return False
+
+
+print(f"Part Two: {sum(is_safe_dampener(report) for report in reports)}")
