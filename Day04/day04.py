@@ -14,11 +14,12 @@ diagonal_rl = [''.join([line[i - j] for j, line in enumerate(lines) if 0 <= i - 
 xmas_count = sum(line.count('XMAS') + line.count('SAMX') for line in horizontal + vertical + diagonal_lr + diagonal_rl)
 print(f"Part One: {xmas_count}")
 
-# Part Two: Extract all 3x3 Xs and count the number of Xs that consist of only "MAS" or "SAM"
-xs = [lines[i][j] + lines[i + 1][j + 1] + lines[i + 2][j + 2] + lines[i + 2][j] + lines[i + 1][j + 1] + lines[i][j + 2]
-      for i in range(len(lines) - 2) for j in range(len(lines[0]) - 2)]
+# Part Two: Iterate over all 3x3 Xs, counting the number of Xs that consist of only "MAS" or "SAM"
 x_mas_count = 0
-for x in xs:
-    if x.count('MAS') + x.count('SAM') == 2:
-        x_mas_count += 1
+for i in range(len(lines) - 2):
+    for j in range(len(lines[0]) - 2):
+        x = (lines[i][j] + lines[i + 1][j + 1] + lines[i + 2][j + 2] +
+             lines[i + 2][j] + lines[i + 1][j + 1] + lines[i][j + 2])
+        if x.count('MAS') + x.count('SAM') == 2:
+            x_mas_count += 1
 print(f"Part Two: {x_mas_count}")
