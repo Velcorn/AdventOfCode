@@ -15,13 +15,13 @@ print(f"Part One: {sum(int(item[0]) * int(item[1]) for item in matches if item[0
 
 # Part Two: Calculate the sum of pairwise multiplications of numbers depending on the do and don't functions
 do = True
-total = 0
+sum = 0
 for tpl in matches:
     if tpl[2]:
         do = True
     elif tpl[3]:
         do = False
     elif do:
-        total += int(tpl[0]) * int(tpl[1])
+        sum += int(tpl[0]) * int(tpl[1])
 
-print(f"Part Two: {total}")
+print(f"Part Two: {sum}")
