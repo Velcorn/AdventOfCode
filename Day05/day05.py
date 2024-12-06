@@ -29,31 +29,16 @@ def is_sorted(update, rules_dict):
     return True
 
 
-# Topological sorting function
+# Function to sort an update based on the rules
 def sort_update(update, rules_dict):
-    # Create graph for the update
-    graph = defaultdict(set)
-    indegree = {page: 0 for page in update}
-
-    for page in update:
-        for dependency in rules_dict.get(page, set()):
-            if dependency in update:
-                graph[page].add(dependency)
-                indegree[dependency] += 1
-
-    # Topological sort (Kahn's Algorithm)
-    queue = deque([page for page in update if indegree[page] == 0])
-    sorted_update = []
-
-    while queue:
-        page = queue.popleft()
-        sorted_update.append(page)
-        for neighbor in graph[page]:
-            indegree[neighbor] -= 1
-            if indegree[neighbor] == 0:
-                queue.append(neighbor)
-
-    return sorted_update
+    while not is_sorted(update, rules_dict):
+        # Iterate through the update: if the current page is in the rules of a following page, move it before that page
+        for i in range(len(update)):
+            for j in range(i + 1, len(update)):
+                if update[i] in rules_dict[update[j]]:
+                    update.insert(j, update.pop(i))
+                    break
+    return update
 
 
 # Part One: Sum of middle page numbers for sorted updates
