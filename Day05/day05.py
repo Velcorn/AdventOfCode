@@ -1,4 +1,3 @@
-from collections import defaultdict, deque
 import re
 
 # Read input file
@@ -15,8 +14,10 @@ updates = update_pattern.findall(text)
 updates = [list(map(int, update.split(','))) for update in updates]
 
 # Create a rules dictionary
-rules_dict = defaultdict(set)
+rules_dict = {}
 for rule in rules:
+    if rule[0] not in rules_dict:
+        rules_dict[rule[0]] = set()
     rules_dict[rule[0]].add(rule[1])
 
 
