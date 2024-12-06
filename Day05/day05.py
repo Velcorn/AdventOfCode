@@ -1,47 +1,62 @@
+from collections import defaultdict, deque
 import re
 
 # Read input file
 with open('input.txt') as f:
     text = f.read()
 
-
-# Part One: Get the sum of middle page numbers from sorted updates
-
-# Extract tuples of form x|y where x, y are numbers using regex
+# Extract rules and updates
 rule_pattern = re.compile(r"(\d+)\|(\d+)")
 rules = rule_pattern.findall(text)
 rules = [tuple(map(int, rule)) for rule in rules]
 
-# Create a dictionary for each number containing the set of numbers that come after it
-rules_dict = {}
-for rule in rules:
-    if rule[0] not in rules_dict:
-        rules_dict[rule[0]] = {rule[1]}
-        rules_dict[rule[1]] = set()
-    else:
-        rules_dict[rule[0]].add(rule[1])
-
-# Sort rules_dict for convenience
-rules_dict = dict(sorted(rules_dict.items()))
-
-
-# Function to check whether an update is already sorted correctly
-def is_sorted(update, rules_dict):
-    update_ = update.copy()
-    while update_:
-        page = update_[0]
-        update_ = update_[1:]
-        if not update_:
-            return True
-        if any(page in rules_dict[num] for num in update_):
-            return False
-
-
-# Extract lists of form a, b, ..., z using regex where a, b, ..., z are integers
 update_pattern = re.compile(r"(?:\d+,)+\d+")
 updates = update_pattern.findall(text)
 updates = [list(map(int, update.split(','))) for update in updates]
-# Calculate the sum of middle page numbers from sorted updates
+
+# Create a rules dictionary
+rules_dict = defaultdict(set)
+for rule in rules:
+    rules_dict[rule[0]].add(rule[1])
+
+
+# Function to check whether an update is sorted
+def is_sorted(update, rules_dict):
+    for i in range(len(update)):
+        for j in range(i + 1, len(update)):
+            if update[i] in rules_dict[update[j]]:
+                return False
+    return True
+
+
+# Topological sorting function
+def sort_update(update, rules_dict):
+    # Create graph for the update
+    graph = defaultdict(set)
+    indegree = {page: 0 for page in update}
+
+    for page in update:
+        for dependency in rules_dict.get(page, set()):
+            if dependency in update:
+                graph[page].add(dependency)
+                indegree[dependency] += 1
+
+    # Topological sort (Kahn's Algorithm)
+    queue = deque([page for page in update if indegree[page] == 0])
+    sorted_update = []
+
+    while queue:
+        page = queue.popleft()
+        sorted_update.append(page)
+        for neighbor in graph[page]:
+            indegree[neighbor] -= 1
+            if indegree[neighbor] == 0:
+                queue.append(neighbor)
+
+    return sorted_update
+
+
+# Part One: Sum of middle page numbers for sorted updates
 sum_sorted = 0
 for update in updates:
     if is_sorted(update, rules_dict):
@@ -49,26 +64,11 @@ for update in updates:
 
 print(f"Part One: {sum_sorted}")
 
-
-# Part Two: Get the sum of middle page numbers from unsorted updates after sorting them
-
-# Function to sort an update based on given rules
-def sort_update(update, rules_dict):
-    update_ = update.copy()
-    sorted_update = []
-    while update_:
-        for page in update_:
-            if not any(page in rules_dict[num] for num in update_):
-                sorted_update.append(page)
-                update_.remove(page)
-    return sorted_update
-
-
-# Calculate the sum of middle page numbers from unsorted updates after sort
+# Part Two: Sum of middle page numbers for unsorted updates after sorting
 sum_unsorted = 0
 for update in updates:
     if not is_sorted(update, rules_dict):
-        update = sort_update(update, rules_dict)
-        sum_unsorted += update[len(update) // 2]
+        sorted_update = sort_update(update, rules_dict)
+        sum_unsorted += sorted_update[len(sorted_update) // 2]
 
 print(f"Part Two: {sum_unsorted}")
