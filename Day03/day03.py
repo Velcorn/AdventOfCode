@@ -1,27 +1,25 @@
 import re
 
-# Read input file
-with open('input.txt') as f:
-    text = f.read()
-
 # Regex pattern to extract do(), don't(), and mul() functions and their arguments
 pattern = re.compile(r"mul\((\d{1,3}),(\d{1,3})\)|(do\(\))|(don\'t\(\))")
 
-# Find all matches
-matches = pattern.findall(text)
+# Read input file and find all matches
+with open('input.txt') as f:
+    matches = pattern.findall(f.read())
 
 # Part One: Calculate the sum of pairwise multiplications of numbers
-print(f"Part One: {sum(int(item[0]) * int(item[1]) for item in matches if item[0])}")
+mul_sum = sum(int(item[0]) * int(item[1]) for item in matches if item[0])
+print(f"Part One: {mul_sum}")
 
-# Part Two: Calculate the sum of pairwise multiplications of numbers depending on the do and don't functions
+# Part Two: Calculate the sum of pairwise multiplications of numbers, where do enables and don't disables
 do = True
-sum = 0
+mul_sum_do_dont = 0
 for tpl in matches:
     if tpl[2]:
         do = True
     elif tpl[3]:
         do = False
     elif do:
-        sum += int(tpl[0]) * int(tpl[1])
+        mul_sum_do_dont += int(tpl[0]) * int(tpl[1])
 
-print(f"Part Two: {sum}")
+print(f"Part Two: {mul_sum_do_dont}")

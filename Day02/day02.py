@@ -22,7 +22,8 @@ def is_safe(report):
     return safe
 
 
-print(f"Part One: {sum(is_safe(report) for report in reports)}")
+safe_reports = sum(is_safe(report) for report in reports)
+print(f"Part One: {safe_reports}")
 
 
 # Part Two: Check how many reports are safe with problem dampener
@@ -39,4 +40,5 @@ def is_safe_dampener(report):
     return False
 
 
-print(f"Part Two: {sum(is_safe_dampener(report) for report in reports)}")
+safe_reports_dampener = sum(is_safe_dampener(report) for report in reports)
+print(f"Part Two: {safe_reports_dampener}")
