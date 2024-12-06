@@ -6,12 +6,10 @@ with open('input.txt') as f:
 
 # Extract rules and updates
 rule_pattern = re.compile(r"(\d+)\|(\d+)")
-rules = rule_pattern.findall(text)
-rules = [tuple(map(int, rule)) for rule in rules]
+rules = [tuple(map(int, rule)) for rule in rule_pattern.findall(text)]
 
 update_pattern = re.compile(r"(?:\d+,)+\d+")
-updates = update_pattern.findall(text)
-updates = [list(map(int, update.split(','))) for update in updates]
+updates = [list(map(int, update.split(','))) for update in update_pattern.findall(text)]
 
 # Create a rules dictionary
 rules_dict = {}
@@ -33,7 +31,6 @@ def is_sorted(update, rules_dict):
 # Function to sort an update based on the rules
 def sort_update(update, rules_dict):
     while not is_sorted(update, rules_dict):
-        # Iterate through the update: if the current page is in the rules of a following page, move it before that page
         for i in range(len(update)):
             for j in range(i + 1, len(update)):
                 if update[i] in rules_dict[update[j]]:
