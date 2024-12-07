@@ -25,15 +25,6 @@ def traverse_lab(lab, start):
     direction = 0
     cur_pos = (start[0], start[1], directions[direction][2])
     while True:
-        # Cycle check
-        if cur_pos in path_set:
-            return path, visited, True
-        else:
-            path_set.add(cur_pos)
-
-        # Add current position to path and visited set and split into row, col, char for easier handling
-        path.append(cur_pos)
-        visited.add((cur_pos[0], cur_pos[1]))
         row, col, _ = cur_pos
 
         # Mark current pos with x
@@ -45,13 +36,28 @@ def traverse_lab(lab, start):
 
         # Exit condition
         if not (0 <= next_row < height and 0 <= next_col < width):
+            path.append(cur_pos)
+            visited.add((row, col))
             break
 
-        # Check boundaries
-        if lab[next_row][next_col] in {'#', 'O'}:
-            # Turn clockwise if blocked
-            direction = (direction + 1) % 4
+        # Attempt to move in the current direction
+        for _ in range(4):
             next_row, next_col = row + directions[direction][0], col + directions[direction][1]
+
+            if 0 <= next_row < height and 0 <= next_col < width and lab[next_row][next_col] not in {'#', 'O'}:
+                row, col = next_row, next_col
+                break
+            else:
+                # Cycle check
+                if cur_pos in path_set:
+                    return path, visited, True
+                # Turn clockwise
+                direction = (direction + 1) % 4
+
+        # Add current position to path and visited set
+        path.append(cur_pos)
+        visited.add((row, col))
+        path_set.add(cur_pos)
 
         # Move to the next position
         cur_pos = (next_row, next_col, directions[direction][2])
@@ -62,7 +68,11 @@ def traverse_lab(lab, start):
 # Part One: Number of distinct positions the guard visits in the lab
 direction = 0  # Guard starts moving up
 start = find_char(lab, '^')
-path, visited, _ = traverse_lab(deepcopy(lab), start)
+lab_copy = deepcopy(lab)
+path, visited, _ = traverse_lab(lab_copy, start)
+for row in lab_copy:
+    print(row)
+print(path)
 
 # Print the result
 diff_pos_guard = visited
