@@ -5,92 +5,72 @@ with open('input.txt') as f:
     lab = [list(line.strip()) for line in f]
 
 
-# Width, height of the lab and possible directions
-width, height = len(lab[0]), len(lab)
-directions = [(-1, 0, 'up'), (0, 1, 'right'), (1, 0, 'down'), (0, -1, 'left')]  # Up, Right, Down, Left
+def find_char(lab, char, first=False):
+    if first:
+        for row_idx, row in enumerate(lab):
+            if char in row:
+                return row_idx, row.index(char)
+    else:
+        indices = set()
+        for row_idx, row in enumerate(lab):
+            indices.update((row_idx, col_idx) for col_idx, cell in enumerate(row) if cell == char)
+        return indices
 
 
-def find_char(lab, char):
-    for row_idx, row in enumerate(lab):
-        if char in row:
-            return row_idx, row.index(char)
-    return None
-
-
-def traverse_lab(lab, start):
-    # Initialize the current position of the guard
+def traverse_lab(start, obstacles):
     path = []
-    path_set = set()
     visited = set()
-    direction = 0
-    cur_pos = (start[0], start[1], directions[direction][2])
+    seen_states = set()
+    cur_pos = start
     while True:
-        row, col, _ = cur_pos
-
-        # Mark current pos with x
-        if lab[row][col] != '^':
-            lab[row][col] = 'x'
-
-        # Attempt to move in the current direction
-        next_row, next_col = row + directions[direction][0], col + directions[direction][1]
-
-        # Exit condition
-        if not (0 <= next_row < height and 0 <= next_col < width):
-            path.append(cur_pos)
-            visited.add((row, col))
-            break
+        # Extract row, col and direction from the current position
+        row, col, direction = cur_pos
 
         # Attempt to move in the current direction
         for _ in range(4):
-            next_row, next_col = row + directions[direction][0], col + directions[direction][1]
+            x, y = directions[direction]
+            next_row, next_col = row + x, col + y
 
-            if 0 <= next_row < height and 0 <= next_col < width and lab[next_row][next_col] not in {'#', 'O'}:
-                row, col = next_row, next_col
-                break
-            else:
-                # Cycle check
-                if cur_pos in path_set:
-                    return path, visited, True
-                # Turn clockwise
+            # Check boundaries, obstacles/obstructions and seen states
+            if not (0 <= next_row < height and 0 <= next_col < width):
+                path.append(cur_pos)
+                visited.add((row, col))
+                return path, visited, False
+            elif (next_row, next_col) in obstacles:
                 direction = (direction + 1) % 4
+            elif (next_row, next_col, direction) in seen_states:
+                return path, visited, True
+            else:
+                # Add current position to path and seen states, and mark coordinates as visited
+                path.append(cur_pos)
+                seen_states.add(cur_pos)
+                visited.add((row, col))
 
-        # Add current position to path and visited set
-        path.append(cur_pos)
-        visited.add((row, col))
-        path_set.add(cur_pos)
+                # Move to the next position
+                cur_pos = (next_row, next_col, direction)
+                break
 
-        # Move to the next position
-        cur_pos = (next_row, next_col, directions[direction][2])
 
-    return path, visited, False
-
+# General variables
+width, height = len(lab[0]), len(lab)
+directions = [(-1, 0), (0, 1), (1, 0), (0, -1)]  # Up, Right, Down, Left
+char_idx = find_char(lab, '^', first=True)
+start = (char_idx[0], char_idx[1], 0)  # Row, Col, Direction
+obstacles = find_char(lab, '#', first=False)
 
 # Part One: Number of distinct positions the guard visits in the lab
-direction = 0  # Guard starts moving up
-start = find_char(lab, '^')
-lab_copy = deepcopy(lab)
-path, visited, _ = traverse_lab(lab_copy, start)
-for row in lab_copy:
-    print(row)
-print(path)
-
-# Print the result
+path, visited, _ = traverse_lab(start, obstacles)
 diff_pos_guard = visited
 print(f"Part One: {len(diff_pos_guard)}")
 
 # Part Two: Number of distinct positions to place an obstruction
 diff_pos_obstructions = set()
-for pos in path[1:]:
-    # Copy lab for modifications
-    lab_copy = deepcopy(lab)
+for row, col in visited:
+    obstruction = (row, col)
 
-    # Place obstruction at position
-    row, col, _ = pos
-    lab_copy[row][col] = 'O'
-
-    # Traverse map and add obstruction if loop
-    path, visited, loop = traverse_lab(lab_copy, start)
+    # Traverse the lab from the original starting point with the obstruction
+    _, _, loop = traverse_lab(start, obstacles | {obstruction})
     if loop:
-        diff_pos_obstructions.add((pos[0], pos[1]))
+        diff_pos_obstructions.add(obstruction)
 
 print(f'Part Two: {len(diff_pos_obstructions)}')
