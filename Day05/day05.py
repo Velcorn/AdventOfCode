@@ -1,15 +1,15 @@
 import re
 
+# Regex patterns to extract rules and updates
+rule_pattern = re.compile(r"(\d+)\|(\d+)")
+update_pattern = re.compile(r"(?:\d+,)+\d+")
+
 # Read input file
 with open('input.txt') as f:
     text = f.read()
-
-# Extract rules and updates
-rule_pattern = re.compile(r"(\d+)\|(\d+)")
-rules = [tuple(map(int, rule)) for rule in rule_pattern.findall(text)]
-
-update_pattern = re.compile(r"(?:\d+,)+\d+")
-updates = [list(map(int, update.split(','))) for update in update_pattern.findall(text)]
+    # Extract rules and updates
+    rules = [tuple(map(int, rule)) for rule in rule_pattern.findall(text)]
+    updates = [list(map(int, update.split(','))) for update in update_pattern.findall(text)]
 
 # Create a rules dictionary
 rules_dict = {}

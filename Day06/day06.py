@@ -1,6 +1,6 @@
 from copy import deepcopy
 
-# Read input file
+# Read input file and split it into a list of lists
 with open('input.txt') as f:
     lab = [list(line.strip()) for line in f]
 
