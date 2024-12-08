@@ -1,10 +1,6 @@
 # Read input file and create dictionary of equations from pattern int: int int ... int
 with open('input.txt') as f:
-    lines = f.read().splitlines()
-    equations = {
-        int(line.split(':')[0]): tuple(map(int, line.split(' ')[1:]))
-        for line in lines
-    }
+    equations = {int(line.split(':')[0]): tuple(map(int, line.split(' ')[1:])) for line in f.read().splitlines()}
 
 
 # Part One: Get the sum of test values from equations that could be true
@@ -15,7 +11,7 @@ def could_be_true(equation, results):
     if test_value in results:
         return test_value
     # Exit condition 2
-    if not numbers:
+    elif not numbers:
         return 0
     # Base case
     if len(results) == 0:
