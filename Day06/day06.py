@@ -53,21 +53,23 @@ def traverse_lab(start, obstacles):
 width, height = len(lab[0]), len(lab)
 directions = [(-1, 0), (0, 1), (1, 0), (0, -1)]  # Up, Right, Down, Left
 char_idx = find_char(lab, '^', first=True)
-start = (char_idx[0], char_idx[1], 0)  # Row, Col, Direction
 obstacles = find_char(lab, '#', first=False)
 
 # Part One: Number of distinct positions the guard visits in the lab
+start = (char_idx[0], char_idx[1], 0)  # Row, Col, Direction
 path, visited, _ = traverse_lab(start, obstacles)
 diff_pos_guard = visited
 print(f"Part One: {len(diff_pos_guard)}")
 
 # Part Two: Number of distinct positions to place an obstruction
 diff_pos_obstructions = set()
+visited.remove((start[0], start[1]))
 for row, col in visited:
+    # Place an obstruction at the current position
     obstruction = (row, col)
 
-    # Traverse the lab from the original starting point with the obstruction
-    _, _, loop = traverse_lab(start, obstacles | {obstruction})
+    # Traverse the lab from the position before the new obstruction
+    path, _, loop = traverse_lab(path[0], obstacles | {obstruction})
     if loop:
         diff_pos_obstructions.add(obstruction)
 
