@@ -26,9 +26,9 @@ def could_be_true(equation, concat=False):
 
 
 # Part One: Sum test values from equations where addition/multiplication work
-part_one = sum(could_be_true((key, value)) for key, value in equations.items())
+part_one = sum(could_be_true(eq) for eq in equations.items())
 print(f"Part One: {part_one}")
 
 # Part Two: Sum test values with addition, multiplication, or concatenation
-part_two = sum(could_be_true((key, value), concat=True) for key, value in equations.items())
+part_two = sum(could_be_true(eq, concat=True) for eq in equations.items())
 print(f"Part Two: {part_two}")
