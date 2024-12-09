@@ -16,37 +16,42 @@ def find_char(lab, char, first=False):
 
 
 def traverse_lab(start, obstacles):
-    path = []
-    visited = set()
-    seen_states = set()
+    path = [start]
+    visited = {start[:2]}
+    seen_states = {start}
     cur_pos = start
     while True:
         # Extract row, col and direction from the current position
         row, col, direction = cur_pos
 
-        # Attempt to move in the current direction
-        for _ in range(4):
-            x, y = directions[direction]
+        # Calculate the next position
+        x, y = directions[direction]
+        next_row, next_col = row + x, col + y
+
+        # While the next position is within the lab and not an obstacle, keep moving
+        while 0 <= next_row < height and 0 <= next_col < width and (next_row, next_col) not in obstacles:
+            cur_pos = (next_row, next_col, direction)
+
+            # Loop detection
+            if cur_pos in seen_states:
+                return path, visited, True
+
+            # Update the path, visited set, and seen states
+            path.append(cur_pos)
+            visited.add((next_row, next_col))
+            seen_states.add(cur_pos)
+
+            # Move to the next position
+            row, col = next_row, next_col
             next_row, next_col = row + x, col + y
 
-            # Check boundaries, obstacles/obstructions and seen states
-            if not (0 <= next_row < height and 0 <= next_col < width):
-                path.append(cur_pos)
-                visited.add((row, col))
-                return path, visited, False
-            elif (next_row, next_col) in obstacles:
-                direction = (direction + 1) % 4
-            elif (next_row, next_col, direction) in seen_states:
-                return path, visited, True
-            else:
-                # Add current position to path and seen states, and mark coordinates as visited
-                path.append(cur_pos)
-                seen_states.add(cur_pos)
-                visited.add((row, col))
-
-                # Move to the next position
-                cur_pos = (next_row, next_col, direction)
-                break
+        # If the next position is out of bounds, exit the loop, else change direction
+        if not (0 <= next_row < height and 0 <= next_col < width):
+            return path, visited, False
+        else:
+            # Change direction
+            cur_pos = (row, col, (direction + 1) % 4)
+            path.append(cur_pos)
 
 
 # General variables

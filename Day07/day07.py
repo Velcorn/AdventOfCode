@@ -1,6 +1,12 @@
-# Read input file and create dictionary of equations from the pattern int: int int ... int
-with open('input.txt') as f:
-    equations = {int(line.split(':')[0]): tuple(map(int, line.split(' ')[1:])) for line in f.read().splitlines()}
+# Read input file
+with open('example.txt') as f:
+    lines = f.read().splitlines()
+
+# Create dictionary from lines of form int: int int ... int
+equations = {}
+for line in lines:
+    key, values = line.split(':')
+    equations[int(key)] = list(map(int, values.split()))
 
 
 # Check if a test value can be achieved using addition, multiplication, or concatenation
