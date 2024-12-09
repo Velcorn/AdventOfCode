@@ -12,7 +12,7 @@ for i, d in enumerate(disk_map):
     else:
         free_space.append(d)
 
-# Part One: Calculate the filesystem checksum
+# Part One: Compact filesystem and calculate its checksum
 compacted = []
 while files:
     # Add elements from first file
