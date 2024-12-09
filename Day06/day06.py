@@ -45,13 +45,13 @@ def traverse_lab(start, obstacles):
             row, col = next_row, next_col
             next_row, next_col = row + x, col + y
 
-        # If the next position is out of bounds, exit the loop, else change direction
-        if not (0 <= next_row < height and 0 <= next_col < width):
-            return path, visited, False
-        else:
-            # Change direction
+        # If the next position is an obstacle, change direction
+        if (next_row, next_col) in obstacles:
             cur_pos = (row, col, (direction + 1) % 4)
-            path.append(cur_pos)
+        else:
+            # If the next position is out of bounds, terminate
+            if not (0 <= next_row < height and 0 <= next_col < width):
+                return path, visited, False
 
 
 # General variables
