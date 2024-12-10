@@ -1,5 +1,5 @@
 # Read the input file as a single string
-with open('example.txt') as f:
+with open('input.txt') as f:
     disk_map = [int(char) for char in f.read().strip()]
 
 # Create separate lists for files and free space
@@ -10,61 +10,68 @@ for i, d in enumerate(disk_map):
         val = i // 2
         files.append([val] * d)
     else:
-        free_space.append(d)
+        if d > 0:
+            files.append(['.'] * d)
 
 
-def compact_files(files, free_space, part_two=False):
+def compact_files(files, part_two=False):
     compacted = []
     while files:
-        # Add elements from the first file
-        block = files.pop(0)
-        compacted.extend(block)
+        file = files.pop(0)
 
-        # Fill free space by removing elements from the back of files
-        free = free_space.pop(0)
-        while free:
-            # If no more files, break
-            if len(files) == 0:
-                break
+        # If the block is not free space, add it to the compacted list
+        if '.' not in file:
+            compacted.extend(file)
+        # Else fill free space by moving elements from the back of files
+        else:
+            i = 1
+            free = len(file)
+            while free:
+                try:
+                    file = files[-i]
+                    if '.' in file:
+                        i += 1
+                        continue
+                    if len(file) <= free:
+                        compacted.extend(file)
+                        files.pop(-i)
+                        free -= len(file)
+                    else:
+                        if not part_two:
+                            # Part One, add only the blocks that fit the free space
+                            compacted.extend(file[:free])
+                            files[-i] = file[free:]
+                            free = 0
+                        else:
+                            # Part two, try finding a file that fits the free space
+                            found = False
+                            for i in range(2, len(files) + 1):
+                                file = files[-i]
+                                if '.' in file:
+                                    continue
+                                if len(file) <= free:
+                                    compacted.extend(file)
+                                    files[-i] = ['.' for _ in file]
+                                    free -= len(file)
+                                    found = True
+                                    break
+                            # If no suitable file was found, fill free space with dots
+                            if not found:
+                                compacted.extend(['.'] * free)
+                                free = 0
+                except IndexError:
+                    break
 
-            # If the xth file has fewer elements than free space, add all elements
-            block = files[-1]
-            if len(block) <= free:
-                compacted.extend(block)
-                files.pop()
-                free -= len(block)
-            else:
-                if not part_two:
-                    # If part one, add only free elements from the last file
-                    compacted.extend(block[:free])
-                    files[-1] = block[free:]
-                    free = 0
-                else:
-                    # Try finding a file with leq elements than free space
-                    found = False
-                    for i in range(2, len(files) + 1):
-                        block = files[-i]
-                        if len(block) <= free:
-                            compacted.extend(block)
-                            files.pop(-i)
-                            free -= len(block)
-                            found = True
-                            print(compacted)
-                            break
-                    # If no suitable block was found, fill free space with zeros
-                    if not found:
-                        compacted.extend([0] * free)
-                        free = 0
-    return compacted
+    # Replace all dots with zeros
+    return [0 if x == '.' else x for x in compacted]
 
 
 # Part One: Compact filesystem and calculate its checksum
-compacted = compact_files(files.copy(), free_space.copy())
+compacted = compact_files(files.copy())
 filesystem_checksum = sum(compacted[i] * i for i in range(len(compacted)))
 print(f'Part One: {filesystem_checksum}')
 
 # Part Two: Compact filesystem by moving entire files only and calculate its checksum
-compacted = compact_files(files.copy(), free_space.copy(), part_two=True)
-print(compacted)
+compacted = compact_files(files.copy(), part_two=True)
 filesystem_checksum = sum(compacted[i] * i for i in range(len(compacted)))
 print(f'Part Two: {filesystem_checksum}')
