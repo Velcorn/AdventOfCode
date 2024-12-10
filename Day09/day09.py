@@ -29,38 +29,38 @@ def compact_files(files, part_two=False):
             while free:
                 try:
                     file = files[-i]
-                    if '.' in file:
-                        i += 1
-                        continue
-                    if len(file) <= free:
-                        compacted.extend(file)
-                        files.pop(-i)
-                        free -= len(file)
-                    else:
-                        if not part_two:
-                            # Part One, add only the blocks that fit the free space
-                            compacted.extend(file[:free])
-                            files[-i] = file[free:]
-                            free = 0
-                        else:
-                            # Part two, try finding a file that fits the free space
-                            found = False
-                            for i in range(2, len(files) + 1):
-                                file = files[-i]
-                                if '.' in file:
-                                    continue
-                                if len(file) <= free:
-                                    compacted.extend(file)
-                                    files[-i] = ['.' for _ in file]
-                                    free -= len(file)
-                                    found = True
-                                    break
-                            # If no suitable file was found, fill free space with dots
-                            if not found:
-                                compacted.extend(['.'] * free)
-                                free = 0
                 except IndexError:
                     break
+                if '.' in file:
+                    i += 1
+                    continue
+                if len(file) <= free:
+                    compacted.extend(file)
+                    files.pop(-i)
+                    free -= len(file)
+                else:
+                    if not part_two:
+                        # Part One, add only the blocks that fit the free space
+                        compacted.extend(file[:free])
+                        files[-i] = file[free:]
+                        free = 0
+                    else:
+                        # Part two, try finding a file that fits the free space
+                        found = False
+                        for i in range(2, len(files) + 1):
+                            file = files[-i]
+                            if '.' in file:
+                                continue
+                            if len(file) <= free:
+                                compacted.extend(file)
+                                files[-i] = ['.' for _ in file]
+                                free -= len(file)
+                                found = True
+                                break
+                        # If no suitable file was found, fill free space with dots
+                        if not found:
+                            compacted.extend(['.'] * free)
+                            free = 0
 
     # Replace all dots with zeros
     return [0 if x == '.' else x for x in compacted]
