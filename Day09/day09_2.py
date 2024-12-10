@@ -29,7 +29,6 @@ def compact_blocks(blocks):
             blocks[i], blocks[j] = blocks[j], blocks[i]
             i += 1
             j -= 1
-    # Transform dots to zeros
     return [0 if block == '.' else block for block in blocks]
 
 
@@ -68,11 +67,10 @@ def compact_files(files):
                 files.insert(i + 1, ['.' for _ in range(len_i - len_j)])
                 i = 0
 
-    # Transform dots to zeros
     return [0 if block == '.' else block for file in files for block in file]
 
 
-# Part One: Compact filesystem and calculate its checksum
+# Part One: Compact filesystem by moving blocks and calculate its checksum
 compacted = compact_blocks(blocks.copy())
 filesystem_checksum = sum(compacted[i] * i for i in range(len(compacted)))
 print(f'Part One: {filesystem_checksum}')
