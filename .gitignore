@@ -1,5 +1,5 @@
 .idea
 .venv
 venv
-*task.txt
-*input.txt
+task.txt
+input.txt
