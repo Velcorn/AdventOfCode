@@ -1,34 +1,39 @@
-# Read input file
+# Read input file and transform into dictionary of form int: int int ... int
 with open('example.txt') as f:
-    lines = f.read().splitlines()
-
-# Create dictionary from lines of form int: int int ... int
-equations = {}
-for line in lines:
-    key, values = line.split(':')
-    equations[int(key)] = list(map(int, values.split()))
+    equations = {}
+    for line in f.read().splitlines():
+        key, values = line.split(':')
+        equations[int(key)] = list(map(int, values.split()))
 
 
 # Check if a test value can be achieved using addition, multiplication, or concatenation
 def could_be_true(equation, concat=False):
+    def dfs(target, numbers, current_result):
+        # Base case: no more numbers to process
+        if not numbers:
+            return target if current_result == target else 0
+
+        # Extract the next number
+        num = numbers[0]
+        remaining = numbers[1:]
+
+        # Try all operations: addition, multiplication, and (optionally) concatenation
+        if dfs(target, remaining, current_result + num):
+            return target
+        if dfs(target, remaining, current_result * num):
+            return target
+        if concat:
+            concatenated = int(str(current_result) + str(num))
+            if concatenated <= target and dfs(target, remaining, concatenated):
+                return target
+
+        return 0
+
     # Unpack equation into test value and numbers
     test_value, numbers = equation
 
-    # Initialize results
-    results = {0}
-
-    # Iterate over the rest of the numbers, applying addition and multiplication (and concatenation if enabled)
-    for num in numbers:
-        new_results = set()
-        for res in results:
-            new_results.add(res + num)
-            new_results.add(res * num)
-            if concat:
-                new_results.add(int(str(res) + str(num)))
-        # Update results with new results that are less than or equal to the test value
-        results = {res for res in new_results if res <= test_value}
-
-    return test_value if test_value in results else 0
+    # Start the recursive DFS with initial result of 0
+    return dfs(test_value, numbers, 0)
 
 
 # Part One: Sum test values from equations where addition/multiplication work

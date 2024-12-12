@@ -17,8 +17,8 @@ for i, d in enumerate(disk_map):
 def compact_files(files, part_two=False):
     compacted = []
     while files:
+        # Get the next block of files
         file = files.pop(0)
-
         # If the block is not free space, add it to the compacted list
         if '.' not in file:
             compacted.extend(file)

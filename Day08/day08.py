@@ -1,5 +1,5 @@
 # Read input file and split it into a list of lists
-with open('input.txt') as f:
+with open('example.txt') as f:
     city = [list(line.strip()) for line in f]
 
 # Bounds of the city
@@ -21,10 +21,13 @@ def get_antinodes(city_dict, part_one=False):
     for coordinates in city_dict.values():
         # Process each pair of coordinates once
         n = len(coordinates)
+
         # If more than one coordinate, all antennas are antinodes
         if n > 1 and not part_one:
             for c in coordinates:
                 unique_locations.add(c)
+
+        # Calculate all possible antinodes for each pair of coordinates
         for i in range(n):
             for j in range(i + 1, n):
                 # Calculate new coordinates based on the difference between the current coordinates
@@ -45,6 +48,7 @@ def get_antinodes(city_dict, part_one=False):
                     new_c2 = (new_c2[0] - diff[0], new_c2[1] - diff[1])
                     if part_one:
                         break
+
     return unique_locations
 
 
