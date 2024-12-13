@@ -9,20 +9,6 @@ with open('example.txt') as f:
 def get_fencing_prices(plots, discount):
     visited_plots = set()
 
-    def unique_boundary(node, neighbor):
-        # Add unique boundary, i.e., relevant coordinate of current node (either (0, j) or (i, 0))
-        # and direction of boundary (N, S, W, E)
-        i, j = node
-        x, y = neighbor
-        if x < i:
-            return i, 0, 'N'
-        elif x > i:
-            return i, 0, 'S'
-        elif y < j:
-            return 0, j, 'W'
-        else:
-            return 0, j, 'E'
-
     def bfs(visited, i, j, discount):
         if (i, j) in visited_plots:
             return 0
@@ -31,7 +17,6 @@ def get_fencing_prices(plots, discount):
         plant_type = plots[i][j]
         visited_plants = set()
         perimeter = 0
-        unique_boundaries = set()
         q = [(i, j)]
         while q:
             i, j = q.pop(0)
@@ -46,13 +31,11 @@ def get_fencing_prices(plots, discount):
                         q.append((x, y))
                     else:
                         perimeter += 1
-                        unique_boundaries.add(unique_boundary((i, j), (x, y)))
                 else:
                     perimeter += 1
-                    unique_boundaries.add(unique_boundary((i, j), (x, y)))
         area = len(visited_plants)
         if discount:
-            sides = len(unique_boundaries)
+            sides = 0
             print(f'Plant: {plant_type}, Area: {area}, Sides: {sides}')
             return area * sides
         return area * perimeter
@@ -60,9 +43,6 @@ def get_fencing_prices(plots, discount):
 
 
 # Part One: Get the total price of fencing for the garden plots
-for row in plots:
-    print(''.join(row))
-
 print(f'Part One: {get_fencing_prices(plots, discount=False)}')
 
 # Part Two: Get the total price of fencing for the garden plots with a discount
