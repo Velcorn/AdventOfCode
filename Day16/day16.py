@@ -8,73 +8,83 @@ def find_char(maze, char, first=False):
         for row_idx, row in enumerate(maze):
             if char in row:
                 return row_idx, row.index(char)
+    else:
+        indices = set()
+        for row_idx, row in enumerate(maze):
+            indices.update((row_idx, col_idx) for col_idx, cell in enumerate(row) if cell == char)
+        return indices
 
 
 def h(x, y, end):
-    """ Heuristic function: Manhattan distance """
     return abs(x - end[0]) + abs(y - end[1])
 
 
 def a_star(maze, start, end):
-    """ A* search algorithm tracking rotations only """
     open_set = {start}
     closed_set = set()
     came_from = {}
+    g_score = {start: 0}
     f_score = {start: h(*start, end)}
-    directions = [(-1, 0), (0, 1), (1, 0), (0, -1)]  # Up, Right, Down, Left
-    direction_index = 0  # Initial direction (Up)
-    rotations = 0  # Rotation counter
+    direction = 1
 
     while open_set:
-        # Pick the node with the lowest f_score
         current = min(open_set, key=lambda x: f_score[x])
-
-        # Reached the end
         if current == end:
             path = []
             while current in came_from:
                 path.append(current)
                 current = came_from[current]
-            path.reverse()
-            return path, rotations
+            return path
 
         open_set.remove(current)
         closed_set.add(current)
 
-        # Explore neighbors
-        for i, (dx, dy) in enumerate(directions):
+        for dx, dy in directions:
+            r = 0
             neighbor = nx, ny = current[0] + dx, current[1] + dy
-
-            # Ignore walls or already-visited cells
-            if not (0 <= nx < len(maze) and 0 <= ny < len(maze[0])) or maze[nx][ny] == '#' or neighbor in closed_set:
+            if neighbor in closed_set or maze[nx][ny] == '#':
                 continue
 
-            # Count rotation if direction changes
-            rotation_penalty = 1 if i != direction_index else 0
+            if neighbor != directions[direction]:
+                r = 1
 
-            # Update rotations and path
-            if neighbor not in open_set or rotation_penalty == 1:
-                came_from[neighbor] = current
-                f_score[neighbor] = h(*neighbor, end)
+            tentative_g_score = g_score[current] + 1 + r * 1000
+            if neighbor not in open_set:
                 open_set.add(neighbor)
-                if rotation_penalty:
-                    rotations += 1
-                direction_index = i
+            elif tentative_g_score >= g_score[neighbor]:
+                continue
 
-    return None, None
+            came_from[neighbor] = current
+            g_score[neighbor] = tentative_g_score
+            f_score[neighbor] = tentative_g_score + h(*neighbor, end)
+
+    return None
 
 
-# Part One: Find the path and count rotations
+# Part One: Get the lowest score to reach the end
 directions = [(-1, 0), (0, 1), (1, 0), (0, -1)]  # Up, Right, Down, Left
-start = find_char(maze, 'S', first=True)
-end = find_char(maze, 'E', first=True)
-path, rotations = a_star(maze, start, end)
-
-# Mark the path on the maze
-for x, y in path:
-    if maze[x][y] not in ['S', 'E']:
-        maze[x][y] = '+'
+start, end = find_char(maze, 'S', first=True), find_char(maze, 'E', first=True)
+path = a_star(maze, start, end)
+d = 1
+rotations = 0
+node = start
+for m in path[1:-1]:
+    x, y = node
+    nx, ny = m
+    d_coords = directions[d]
+    nd = directions.index((nx - x, ny - y))
+    if nd != d:
+        rotations += 1
+        d = directions[nd]
+    node = m
+    if d_coords == 0:
+        maze[x][y] = '^'
+    elif d_coords == 1:
+        maze[x][y] = '>'
+    elif d_coords == 2:
+        maze[x][y] = 'v'
+    elif d_coords == 3:
+        maze[x][y] = '<'
 for row in maze:
     print(''.join(row))
-    
-print(f'Part One: {len(path) + rotations * 1000}')    
+print(f'Part One: {len(path) + rotations * 1000}')
