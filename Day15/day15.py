@@ -1,5 +1,3 @@
-from time import sleep
-
 # Read input as list of lists and single string of moves
 with open('input.txt') as f:
     lines = f.read().splitlines()
