@@ -1,5 +1,7 @@
+from heapq import heappush, heappop
+
 # Read input as list of lists for maze
-with open('example.txt') as f:
+with open('input.txt') as f:
     maze = [list(line.strip()) for line in f]
 
 
@@ -15,76 +17,51 @@ def find_char(maze, char, first=False):
         return indices
 
 
-def h(x, y, end):
-    return abs(x - end[0]) + abs(y - end[1])
+def dijkstra(maze, start, end):
+    directions = [(-1, 0), (0, 1), (1, 0), (0, -1)]  # Up, Right, Down, Left
+    pq = [(0, start[0], start[1], 1, [])]  # (cost, x, y, direction, path_so_far)
+    visited = {}  # Key: (x, y, direction) -> Best cost seen so far
+    best_paths = []
+    min_total_cost = float('inf')
 
+    while pq:
+        cost, x, y, current_dir, path = heappop(pq)
+        path = path + [(x, y)]  # Add current position to the path
 
-def a_star(maze, start, end):
-    open_set = {start}
-    closed_set = set()
-    came_from = {}
-    g_score = {start: 0}
-    f_score = {start: h(*start, end)}
-    direction = 1
+        # Reached the end
+        if (x, y) == end:
+            total_cost = cost
+            if total_cost < min_total_cost:
+                best_paths = [path]
+                min_total_cost = total_cost
+            elif total_cost == min_total_cost:
+                best_paths.append(path)
+            continue
 
-    while open_set:
-        current = min(open_set, key=lambda x: f_score[x])
-        if current == end:
-            path = []
-            while current in came_from:
-                path.append(current)
-                current = came_from[current]
-            return path
+        # Allow multiple states at same cost
+        state = (x, y, current_dir)
+        if state in visited and visited[state] < cost:
+            continue
+        visited[state] = cost
 
-        open_set.remove(current)
-        closed_set.add(current)
+        # Explore all directions
+        for new_dir, (dx, dy) in enumerate(directions):
+            nx, ny = x + dx, y + dy
+            if 0 <= nx < len(maze) and 0 <= ny < len(maze[0]) and maze[nx][ny] != '#':
+                rotation_penalty = 1000 if new_dir != current_dir else 0
+                new_cost = cost + 1 + rotation_penalty
+                heappush(pq, (new_cost, nx, ny, new_dir, path))
 
-        for dx, dy in directions:
-            r = 0
-            neighbor = nx, ny = current[0] + dx, current[1] + dy
-            if neighbor in closed_set or maze[nx][ny] == '#':
-                continue
-
-            if neighbor != directions[direction]:
-                r = 1
-
-            tentative_g_score = g_score[current] + 1 + r * 1000
-            if neighbor not in open_set:
-                open_set.add(neighbor)
-            elif tentative_g_score >= g_score[neighbor]:
-                continue
-
-            came_from[neighbor] = current
-            g_score[neighbor] = tentative_g_score
-            f_score[neighbor] = tentative_g_score + h(*neighbor, end)
-
-    return None
+    return best_paths, min_total_cost
 
 
 # Part One: Get the lowest score to reach the end
-directions = [(-1, 0), (0, 1), (1, 0), (0, -1)]  # Up, Right, Down, Left
 start, end = find_char(maze, 'S', first=True), find_char(maze, 'E', first=True)
-path = a_star(maze, start, end)
-d = 1
-rotations = 0
-node = start
-for m in path[1:-1]:
-    x, y = node
-    nx, ny = m
-    d_coords = directions[d]
-    nd = directions.index((nx - x, ny - y))
-    if nd != d:
-        rotations += 1
-        d = directions[nd]
-    node = m
-    if d_coords == 0:
-        maze[x][y] = '^'
-    elif d_coords == 1:
-        maze[x][y] = '>'
-    elif d_coords == 2:
-        maze[x][y] = 'v'
-    elif d_coords == 3:
-        maze[x][y] = '<'
-for row in maze:
-    print(''.join(row))
-print(f'Part One: {len(path) + rotations * 1000}')
+best_paths, total_cost = dijkstra(maze, start, end)
+print(f'Part One: {total_cost}')
+
+# Part Two: Get the number of tiles that are part of at least one of the best paths
+best_path_tiles = set()
+for path in best_paths:
+    best_path_tiles.update(path)
+print(f'Part Two: {len(best_path_tiles)}')
