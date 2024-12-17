@@ -1,4 +1,4 @@
-# Read input as list of lists and single string of moves
+# Read input as list of lists for warehouse and single string for moves
 with open('input.txt') as f:
     lines = f.read().splitlines()
     warehouse = []
