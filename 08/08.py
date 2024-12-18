@@ -1,5 +1,5 @@
 # Read input file and split it into a list of lists
-with open('example.txt') as f:
+with open('08_example.txt') as f:
     city = [list(line.strip()) for line in f]
 
 # Bounds of the city

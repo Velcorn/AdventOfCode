@@ -1,5 +1,5 @@
 # Read input as list of lists
-with open('example.txt') as f:
+with open('10_example.txt') as f:
     top_map = [[int(char) for char in line.strip()] for line in f]
 
 

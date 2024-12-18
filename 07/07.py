@@ -1,5 +1,5 @@
 # Read input file and transform into dictionary of form int: int int ... int
-with open('example.txt') as f:
+with open('07_example.txt') as f:
     equations = {}
     for line in f.read().splitlines():
         key, values = line.split(':')

@@ -12,7 +12,7 @@ with open(file) as f:
         robots[i] = (int(p1), int(p2), int(v1), int(v2))
 
 # Initialize grid with dimensions w x h
-w, h = (11, 7) if file == 'lexample.txt' else (101, 103)
+w, h = (11, 7) if file == '15_lexample.txt' else (101, 103)
 grid = [[0 for x in range(w)] for y in range(h)]
 
 # Part One: Calculate the safety factor after 100 seconds
