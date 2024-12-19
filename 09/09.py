@@ -1,5 +1,5 @@
 # Read the input file as a single string
-with open('input.txt') as f:
+with open('17_input.txt') as f:
     disk_map = [int(char) for char in f.read().strip()]
 
 # Create separate lists for files and free space

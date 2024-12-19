@@ -1,5 +1,5 @@
 # Read input file and split it into a list of lists
-with open('input.txt') as f:
+with open('17_input.txt') as f:
     lab = [list(line.strip()) for line in f]
 
 

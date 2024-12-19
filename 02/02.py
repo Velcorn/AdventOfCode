@@ -1,5 +1,5 @@
 # Read input file and split into lists of integers
-with open('input.txt') as f:
+with open('17_input.txt') as f:
     reports = [list(map(int, line.split())) for line in f]
 
 

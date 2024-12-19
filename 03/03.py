@@ -4,7 +4,7 @@ import re
 pattern = re.compile(r"mul\((\d{1,3}),(\d{1,3})\)|(do\(\))|(don\'t\(\))")
 
 # Read input file and find all matches
-with open('input.txt') as f:
+with open('17_input.txt') as f:
     matches = pattern.findall(f.read())
 
 # Part One: Calculate the sum of pairwise multiplications of numbers

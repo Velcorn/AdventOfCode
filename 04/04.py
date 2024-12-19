@@ -1,5 +1,5 @@
 # Read input file and split it into lines
-with open('input.txt') as f:
+with open('17_input.txt') as f:
     word_search = f.read().splitlines()
 
 # Part One: Iterate over all 4x4 squares, counting the number of XMAS or SAMX

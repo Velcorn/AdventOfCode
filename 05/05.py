@@ -5,7 +5,7 @@ rule_pattern = re.compile(r"(\d+)\|(\d+)")
 update_pattern = re.compile(r"(?:\d+,)+\d+")
 
 # Read input file
-with open('input.txt') as f:
+with open('17_input.txt') as f:
     text = f.read()
     # Extract rules and updates
     rules = [tuple(map(int, rule)) for rule in rule_pattern.findall(text)]
