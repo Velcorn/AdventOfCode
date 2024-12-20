@@ -1,32 +1,26 @@
-from heapq import heappush, heappop
-
 # Read input as list of lists for maze
 with open('input.txt') as f:
     maze = [list(line.strip()) for line in f]
 
 
-def find_char(maze, char, first=False):
-    if first:
-        for row_idx, row in enumerate(maze):
-            if char in row:
-                return row_idx, row.index(char)
-    else:
-        indices = set()
-        for row_idx, row in enumerate(maze):
-            indices.update((row_idx, col_idx) for col_idx, cell in enumerate(row) if cell == char)
-        return indices
+def find_char(maze, char):
+    for row_idx, row in enumerate(maze):
+        if char in row:
+            return row_idx, row.index(char)
 
 
 def dijkstra(maze, start, end):
     directions = [(-1, 0), (0, 1), (1, 0), (0, -1)]  # Up, Right, Down, Left
     pq = [(0, start[0], start[1], 1, [])]  # (cost, x, y, direction, path_so_far)
-    visited = {}  # Key: (x, y, direction) -> Best cost seen so far
+    visited = {}
     best_paths = []
     min_total_cost = float('inf')
 
     while pq:
-        cost, x, y, current_dir, path = heappop(pq)
-        path = path + [(x, y)]  # Add current position to the path
+        # Find the entry with the lowest cost manually
+        pq.sort(key=lambda x: x[0])  # Sort by cost
+        cost, x, y, current_dir, path = pq.pop(0)  # Pop the first element
+        path = path + [(x, y)]
 
         # Reached the end
         if (x, y) == end:
@@ -50,13 +44,13 @@ def dijkstra(maze, start, end):
             if 0 <= nx < len(maze) and 0 <= ny < len(maze[0]) and maze[nx][ny] != '#':
                 rotation_penalty = 1000 if new_dir != current_dir else 0
                 new_cost = cost + 1 + rotation_penalty
-                heappush(pq, (new_cost, nx, ny, new_dir, path))
+                pq.append((new_cost, nx, ny, new_dir, path))
 
     return best_paths, min_total_cost
 
 
 # Part One: Get the lowest score to reach the end
-start, end = find_char(maze, 'S', first=True), find_char(maze, 'E', first=True)
+start, end = find_char(maze, 'S'), find_char(maze, 'E')
 best_paths, total_cost = dijkstra(maze, start, end)
 print(f'Part One: {total_cost}')
 
