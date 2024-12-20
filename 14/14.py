@@ -45,7 +45,7 @@ while True:
     row = ''.join(['#' if grid_[y][x] > 0 else '.' for x in range(w) for y in range(h)])
     # ####### best tree detector: can't be bothered to implement a proper one
     if '########' in row:
-        with open('output.txt', 'w') as f:
+        with open('14_tree.txt', 'w') as f:
             f.write('\n'.join([''.join(['#' if grid_[y][x] > 0 else '.' for x in range(w)]) for y in range(h)]))
         break
 print(f'Part Two: {seconds}')
