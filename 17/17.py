@@ -34,13 +34,36 @@ def run_program(registers, program):
         elif opcode == 7:  # cdv
             registers['C'] = registers['A'] // 2 ** combo
         p += 2
-        print(registers)
+
     return output
 
 
 # Part One: Output of the program joined by commas
 output = run_program(registers, program)
-print(registers)
 print(f"Part One: {','.join(map(str, output))}")
 
+
 # Part Two: Get the lowest positive inital value for register A
+def find_a_recursive(program, a=0, depth=0):
+    # Base case: if we have reached the length of the program, return the current A value
+    if depth == len(program):
+        return a
+
+    for i in range(8):
+        # Try adding each possible 3-bit value (0-7) as the next least significant digit of A
+        new_a = a * 8 + i
+        registers = {'A': new_a, 'B': 0, 'C': 0}
+
+        # Check if the produced output matches the elements of the program
+        output = run_program(registers, program)
+        if output[-depth - 1:] == program[-depth - 1:]:
+            # Recursively try to find rest of sequence
+            result = find_a_recursive(program, new_a, depth + 1)
+            if result is not None:
+                return result
+
+    return None
+
+
+initial_a = find_a_recursive(program)
+print(f"Part Two: {initial_a}")
