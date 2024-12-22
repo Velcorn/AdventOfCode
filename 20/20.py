@@ -1,8 +1,4 @@
-from heapq import heappop, heappush
-
-# Read the input as list of lists
-with open('20_input.txt') as f:
-    track = [list(line.strip()) for line in f]
+from collections import deque
 
 
 def find_char(maze, char):
@@ -11,82 +7,55 @@ def find_char(maze, char):
             return row_idx, row.index(char)
 
 
-def manhattan_distance(a, b):
-    return abs(a[0] - b[0]) + abs(a[1] - b[1])
+def manhattan_distance(x1, y1, x2, y2):
+    return abs(x1 - x2) + abs(y1 - y2)
 
 
-def a_star(track, start, end, threshold=None):
-    directions = [(-1, 0), (0, 1), (1, 0), (0, -1)]  # Up, Right, Down, Left
-    open_set = [(0, start[0], start[1], [])]  # (estimated_cost, x, y, path_so_far)
-    g_costs = {start: 0}  # Cost to reach each node
-    visited = set()
+def bfs(track, start, end):
+    queue = deque([start])
+    distances = {start: 0}
 
-    while open_set:
-        # Pop the node with the lowest estimated cost
-        est_cost, x, y, path = heappop(open_set)
-        path = path + [(x, y)]
-
-        # Reached the end
+    while queue:
+        x, y = queue.popleft()
         if (x, y) == end:
-            return path
-
-        # If cost is geq threshold, return
-        if threshold is not None and len(path) - 1 >= threshold:
-            return []
-
-        if (x, y) in visited:
-            continue
-        visited.add((x, y))
-
-        # Explore neighbors
-        for dx, dy in directions:
+            break
+        for dx, dy in [(-1, 0), (0, 1), (1, 0), (0, -1)]:
             nx, ny = x + dx, y + dy
-            if 0 <= nx < len(track) and 0 <= ny < len(track[0]) and track[nx][ny] != '#':
-                tentative_g_cost = g_costs[(x, y)] + 1
-                neighbor = (nx, ny)
+            if (
+                0 <= nx < len(track)
+                and 0 <= ny < len(track[0])
+                and track[nx][ny] != '#'
+                and (nx, ny) not in distances
+            ):
+                distances[(nx, ny)] = distances[(x, y)] + 1
+                queue.append((nx, ny))
 
-                if neighbor not in g_costs or tentative_g_cost < g_costs[neighbor]:
-                    g_costs[neighbor] = tentative_g_cost
-                    f_cost = tentative_g_cost + manhattan_distance(neighbor, end)
-                    heappush(open_set, (f_cost, nx, ny, path))
-
-    return []
+    return distances
 
 
-# Part One: The number of cheats that save at least 100 picoseconds
+def find_cheats(max_cheat_length=2):
+    cheats = set()
+    for i, ((a, b), d1) in enumerate(distances.items()):
+        for (c, d), d2 in list(distances.items())[i:]:
+            md = manhattan_distance(a, b, c, d)
+            if d2 - d1 - md >= 100 and md <= max_cheat_length:
+                cheats.add((a, b, c, d))
+    return len(cheats)
+
+
+# Read the input as a list of lists
+with open('20_input.txt') as f:
+    track = [list(line.strip()) for line in f]
+
+# Initialize the BFS to find the distances from the start to all other points
+directions = [(-1, 0), (0, 1), (1, 0), (0, -1)]
 start, end = find_char(track, 'S'), find_char(track, 'E')
-path = a_star(track, start, end)
-threshold = len(path) - 101
-# Walk over the path and add neighboring walls to the list if they have the path on the other side
-walls = set()
-for x, y in path:
-    for dx, dy in [(-1, 0), (0, 1), (1, 0), (0, -1)]:
-        nx, ny = x + dx, y + dy
-        if 0 <= nx < len(track) - 1 and 0 <= ny < len(track[0]) - 1 and track[nx][ny] == '#':
-            nnx, nny = nx + dx, ny + dy
-            if (nnx, nny) in path:
-                walls.add((nx, ny))
+distances = bfs(track, start, end)
 
+# Part One: The number of cheats with a length of 2 that save at least 100 picoseconds
+cheats = find_cheats(2)
+print(f'Part One: {cheats}')
 
-def test_wall_batch(track, walls, start, end, threshold):
-    """Temporarily remove walls and run A*."""
-    for x, y in walls:
-        track[x][y] = '.'
-    path = a_star(track, start, end)
-    for x, y in walls:
-        track[x][y] = '#'
-    return path if path and len(path) - 1 < threshold else None
-
-
-cheated = []
-i = 0
-for x, y in walls:
-    if i % 100 == 0:
-        print(f'{i}/{len(walls)}')
-    track[x][y] = '.'
-    path = a_star(track, start, end, threshold)
-    if path:
-        cheated.append((x, y))
-    track[x][y] = '#'
-    i += 1
-print(f'Part One: {len(cheated)}')
+# Part Two: The number of cheats with a max length of 20 that save at least 100 picoseconds
+cheats = find_cheats(20)
+print(f'Part Two: {cheats}')
