@@ -1,5 +1,4 @@
 from collections import deque
-from time import time
 
 
 def find_char(maze, char):
@@ -53,12 +52,9 @@ start, end = find_char(track, 'S'), find_char(track, 'E')
 distances = bfs(track, start, end)
 
 # Part One: The number of cheats with a length of 2 that save at least 100 picoseconds
-start_time = time()
 cheats = find_cheats(2)
 print(f'Part One: {cheats}')
 
 # Part Two: The number of cheats with a max length of 20 that save at least 100 picoseconds
 cheats = find_cheats(20)
 print(f'Part Two: {cheats}')
-end_time = time()
-print(f'Execution time: {end_time - start_time:.1f}s')
