@@ -30,7 +30,7 @@ def bfs(track, start, end):
     return distances
 
 
-def find_cheats(max_cheat_length=2):
+def find_cheats(max_cheat_length):
     cheats = set()
     sorted_distances = sorted(distances.items(), key=lambda x: x[1])
     for i, ((a, b), d1) in enumerate(sorted_distances):
