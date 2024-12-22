@@ -1,14 +1,11 @@
 from collections import deque
+from time import time
 
 
 def find_char(maze, char):
     for row_idx, row in enumerate(maze):
         if char in row:
             return row_idx, row.index(char)
-
-
-def manhattan_distance(x1, y1, x2, y2):
-    return abs(x1 - x2) + abs(y1 - y2)
 
 
 def bfs(track, start, end):
@@ -35,10 +32,13 @@ def bfs(track, start, end):
 
 def find_cheats(max_cheat_length=2):
     cheats = set()
-    for i, ((a, b), d1) in enumerate(distances.items()):
-        for (c, d), d2 in list(distances.items())[i:]:
-            md = manhattan_distance(a, b, c, d)
-            if d2 - d1 - md >= 100 and md <= max_cheat_length:
+    sorted_distances = sorted(distances.items(), key=lambda x: x[1])
+    for i, ((a, b), d1) in enumerate(sorted_distances):
+        for (c, d), d2 in sorted_distances[i + 102:]:
+            md = abs(a - c) + abs(b - d)
+            if md > max_cheat_length:
+                continue
+            if d2 - d1 - md >= 100:
                 cheats.add((a, b, c, d))
     return len(cheats)
 
@@ -53,9 +53,12 @@ start, end = find_char(track, 'S'), find_char(track, 'E')
 distances = bfs(track, start, end)
 
 # Part One: The number of cheats with a length of 2 that save at least 100 picoseconds
+start_time = time()
 cheats = find_cheats(2)
 print(f'Part One: {cheats}')
 
 # Part Two: The number of cheats with a max length of 20 that save at least 100 picoseconds
 cheats = find_cheats(20)
 print(f'Part Two: {cheats}')
+end_time = time()
+print(f'Execution time: {end_time - start_time:.1f}s')
