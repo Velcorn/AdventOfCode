@@ -13,25 +13,21 @@ def bron_kerbosch_pivot(r, p, x):
 
 
 # Read input as set of tuples
-with open('23_input.txt') as f:
+with open('23_example.txt') as f:
     connections = set(tuple(line.strip().split('-')) for line in f)
 
-# Create a network of computers
+# Create a network of computers using sets
 network = {}
 for a, b in connections:
-    network.setdefault(a, []).append(b)
-    network.setdefault(b, []).append(a)
+    network.setdefault(a, set()).add(b)
+    network.setdefault(b, set()).add(a)
 
-# Part One: Number of sets of three computers that contain at least one computer that starts with t
-sets_of_three = set()
-for a, b in connections:
-    for c in network[a]:
-        if c in network[b]:
-            sets_of_three.add(tuple(sorted([a, b, c])))
-sets_of_t = sum(1 for a, b, c in sets_of_three if any(computer.startswith('t') for computer in [a, b, c]))
-print(f'Part One: {sets_of_t}')
+# Part One: Number of 3-cliques containing at least one 't' computer
+three_cliques = {tuple(sorted([a, b, c])) for a, b in connections for c in (network[a] & network[b])}
+t_cliques = sum(any(comp.startswith('t') for comp in clique) for clique in three_cliques)
+print(f'Part One: {t_cliques}')
 
-# Part Two: Password to get into the LAN party (the name of every computer sorted alphabetically, separated by commas)
+# Part Two: Password is all computers in max clique, sorted alphabetically and comma-separated
 max_clique = bron_kerbosch_pivot(set(), set(network.keys()), set())
 password = ','.join(sorted(max_clique))
 print(f'Part Two: {password}')
