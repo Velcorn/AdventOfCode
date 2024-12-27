@@ -1,102 +1,19 @@
-def find(pad, char):
-    for row, line in enumerate(pad):
-        for col, c in enumerate(line):
-            if c == char:
-                return row, col
-    return None
+# Solution shamelessly stolen from: https://topaz.github.io/paste/#XQAAAQDAAQAAAAAAAAAzHIoib6poHLpewxtGE3pTrRdzrponKxDhfDpmqUbmwC6eNytFiAtpkMiCqeghNLV2zaw8KSdzSEgXG3fzAq9S86ZmDlpLKRv41QjaGoPMIOjliWR5SLyfp1w/AAVy/FzxwYh6hhYb8UqJYJH75Rz/cc8aK+sCP/lFJwcsXr124+25Uaasqd4vs7FGUGyyagyZ+JDL4iM9ivvgbtVIFkoRRNt583UCDIN1BOtDZG8xZmrmdt77IqHBrIqN+4+qo2Ju43pDk/eukPUU+WMG1AluFJzBpCioq7ZG6s8nyVhCUxzPWdQ5V98X3+VKzUkz/QC1aEpPZTeGPR725wr0PRLVKq6XH/Ld4D/NDOVutTbAVC0lF+yrkOUQ1mqw7EQ2PsqGertTc1QLKEO0SPwfrB11LnQK4f+B83UA
+from functools import cache
 
 
-def bfs(pad, start, end):
-    queue = [(start, '', None)]  # ((row, col), path, last_direction)
-    visited = set()
-    while queue:
-        (row, col), path, last_dir = queue.pop(0)
-        if (row, col) == end:
-            return path + 'A'
-        if (row, col) in visited:
-            continue
-        visited.add((row, col))
-
-        # Sort directions to prioritize:
-        # 1. Current direction (if it exists)
-        # 2. Opposite of current direction
-        # 3. Other directions
-        sorted_directions = []
-        if last_dir is not None:
-            last_drow, last_dcol = last_dir
-            for drow, dcol, arrow in directions:
-                if (drow, dcol) == (last_drow, last_dcol):
-                    priority = 0
-                elif (drow, dcol) == (-last_drow, -last_dcol):
-                    priority = 1
-                else:
-                    priority = 2
-                sorted_directions.append((priority, (drow, dcol, arrow)))
-            sorted_directions.sort()
-            sorted_directions = [x[1] for x in sorted_directions]
-        else:
-            sorted_directions = directions
-
-        # Try each direction in priority order
-        for drow, dcol, arrow in sorted_directions:
-            new_row = row + drow
-            new_col = col + dcol
-            if 0 <= new_row < len(pad) and 0 <= new_col < len(pad[0]) and pad[new_row][new_col] != ' ':
-                queue.append(((new_row, new_col), path + arrow, (drow, dcol)))
-    return None
+def path(ss):
+    (y, x), (Y, X) = [divmod('789456123_0A<v>'.find(t), 3) for t in ss]
+    S = '>' * (X - x) + 'v' * (Y - y) + '0' * (y - Y) + '<' * (x - X)
+    return S if (3, 0) in [(y, X), (Y, x)] else S[::-1]
 
 
-def get_shortest_sequence(code):
-    r2_start = (3, 2)
-    r2_sequence = ''
-    for c in code:
-        r2_end = find(numpad, c)
-        seq = bfs(numpad, r2_start, r2_end)
-        r2_sequence += seq
-        r2_start = r2_end
-    r3_start = (0, 2)
-    r3_sequence = ''
-    for r2b in r2_sequence:
-        r3_end = find(dpad, r2b)
-        seq = bfs(dpad, r3_start, r3_end)
-        r3_sequence += seq
-        r3_start = r3_end
-    my_start = (0, 2)
-    my_sequence = ''
-    for r3b in r3_sequence:
-        my_end = find(dpad, r3b)
-        seq = bfs(dpad, my_start, my_end)
-        my_sequence += seq
-        my_start = my_end
-    return len(my_sequence)
+@cache
+def length(S, d):
+    if d < 0:
+        return len(S) + 1
+    return sum(length(path(ss), d - 1) for ss in zip('A' + S, S + 'A'))
 
 
-# Read input as list of strings
-with open('21_example.txt') as f:
-    codes = [line.strip() for line in f if line.strip()]
-
-# Numpad, dpad and directions
-numpad = [
-    ['7', '8', '9'],
-    ['4', '5', '6'],
-    ['1', '2', '3'],
-    [' ', '0', 'A']
-]
-dpad = [
-    [' ', '^', 'A'],
-    ['<', 'v', '>']
-]
-directions = [
-    (-1, 0, '^'),  # up
-    (0, 1, '>'),  # right
-    (1, 0, 'v'),  # down
-    (0, -1, '<')  # left
-]
-
-# Part One: The sum of the complexities of the five codes on the list
-complexities = 0
-for code in codes:
-    shortest_sequence = get_shortest_sequence(code)
-    numeric_part = int(code.lstrip('0').rstrip('A'))
-    complexities += shortest_sequence * numeric_part
-print(f'Part One: {complexities}')
+for r in 2, 25:
+    print(sum(int(S[:3]) * length(S[:3], r) for S in open('21_input.txt')))
