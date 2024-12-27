@@ -1,19 +1,39 @@
-# Solution shamelessly stolen from: https://topaz.github.io/paste/#XQAAAQDAAQAAAAAAAAAzHIoib6poHLpewxtGE3pTrRdzrponKxDhfDpmqUbmwC6eNytFiAtpkMiCqeghNLV2zaw8KSdzSEgXG3fzAq9S86ZmDlpLKRv41QjaGoPMIOjliWR5SLyfp1w/AAVy/FzxwYh6hhYb8UqJYJH75Rz/cc8aK+sCP/lFJwcsXr124+25Uaasqd4vs7FGUGyyagyZ+JDL4iM9ivvgbtVIFkoRRNt583UCDIN1BOtDZG8xZmrmdt77IqHBrIqN+4+qo2Ju43pDk/eukPUU+WMG1AluFJzBpCioq7ZG6s8nyVhCUxzPWdQ5V98X3+VKzUkz/QC1aEpPZTeGPR725wr0PRLVKq6XH/Ld4D/NDOVutTbAVC0lF+yrkOUQ1mqw7EQ2PsqGertTc1QLKEO0SPwfrB11LnQK4f+B83UA
+# Solution shamelessly stolen (and slightly adapted for readability) from:
+# https://www.reddit.com/r/adventofcode/comments/1hj2odw/comment/m40pb1x/
 from functools import cache
 
 
-def path(ss):
-    (y, x), (Y, X) = [divmod('789456123_0A<v>'.find(t), 3) for t in ss]
-    S = '>' * (X - x) + 'v' * (Y - y) + '0' * (y - Y) + '<' * (x - X)
-    return S if (3, 0) in [(y, X), (Y, x)] else S[::-1]
+def get_shortest_path(chars):
+    # Represent empty tile as '_', '0' denotes both the number on the numpad and '^' on the dpad
+    xpad = '789456123_0A<v>'
+    (start_y, start_x), (end_y, end_x) = [divmod(xpad.find(c), 3) for c in chars]
+
+    # Movement sequence, in order of priority: left, up, down, right
+    sequence = (
+            '<' * (start_x - end_x) +
+            '0' * (start_y - end_y) +
+            'v' * (end_y - start_y) +
+            '>' * (end_x - start_x)
+    )
+
+    # Reverse sequence if empty tile is involved
+    return sequence[::-1] if (3, 0) in [(start_y, end_x), (end_y, start_x)] else sequence
 
 
 @cache
-def length(S, d):
-    if d < 0:
-        return len(S) + 1
-    return sum(length(path(ss), d - 1) for ss in zip('A' + S, S + 'A'))
+def get_sequence_length(sequence, depth):
+    # Recursively calculate the length of the sequence
+    if depth < 0:
+        return len(sequence) + 1  # Add 1 for the activation press
+    return sum(get_sequence_length(get_shortest_path(chars), depth - 1) for chars in zip('A' + sequence, sequence + 'A'))
 
 
-for r in 2, 25:
-    print(sum(int(S[:3]) * length(S[:3], r) for S in open('21_input.txt')))
+# Read input as list of strings
+with open('21_input.txt') as f:
+    codes = [line.strip() for line in f]
+
+# Part One: Sum of the complexities of the five codes with 3 intermediate robots
+print(f'Part One: {sum(int(c[:3]) * get_sequence_length(c[:3], 2) for c in codes)}')
+
+# Part Two: Sum of the complexities of the five codes with 26 intermediate robots
+print(f'Part Two: {sum(int(c[:3]) * get_sequence_length(c[:3], 25) for c in codes)}')
