@@ -53,12 +53,21 @@ y_binary = ''.join(str(y_wires[w]) for w in sorted(y_wires, reverse=True))
 y_decimal = int(y_binary, 2)
 xy_decimal = x_decimal + y_decimal
 xy_binary = bin(xy_decimal)[2:]
-print(xy_binary)
-print(z_binary)
+# Print the indices of the mismatched bits
+diff = [i for i, (z, xy) in enumerate(zip(reversed(xy_binary), reversed(z_binary))) if z != xy]
+print(diff)
 dot = Digraph(format="png")
 for node in graph.nodes:
     dot.node(node)
 for edge in graph.edges(data=True):
     gate = edge[2].get('gate', '')
-    dot.edge(edge[0], edge[1], label=gate)
-dot.render("24_circuit", view=True)
+    if gate == 'AND':
+        color = 'green'
+    elif gate == 'OR':
+        color = 'red'
+    elif gate == 'XOR':
+        color = 'blue'
+    else:
+        color = 'black'
+    dot.edge(edge[0], edge[1], color=color)
+dot.render("24_circuit", view=False)
