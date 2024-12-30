@@ -29,4 +29,4 @@ for lock in locks:
         lockey = [l + k for l, k in zip(lock, key)]
         if all(l <= 5 for l in lockey):
             unique_pairs += 1
-print(unique_pairs)
+print(f'Part One: {unique_pairs}')
