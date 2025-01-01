@@ -53,7 +53,8 @@ z_decimal = int(z_binary, 2)
 print(f'Part One: {z_decimal}')
 
 # Part Two: The names of all eight swapped wires sorted alphabetically and joined with commas
-# Calculate x + y and find the bits that differ from z to narrow down the adders with swapped wires
+
+# Calculate expected output from x + y
 x_wires = {w: v for w, v in wire_values.items() if w.startswith('x')}
 x_binary = ''.join(str(x_wires[w]) for w in sorted(x_wires, reverse=True))
 x_decimal = int(x_binary, 2)
@@ -62,17 +63,15 @@ y_binary = ''.join(str(y_wires[w]) for w in sorted(y_wires, reverse=True))
 y_decimal = int(y_binary, 2)
 xy_decimal = x_decimal + y_decimal
 xy_binary = bin(xy_decimal)[2:]
+
+# Find collision points between x+y and z, filtering following errors (~next two bits) that result from the carry bit
+# (might only work for this specific circuit)
 diffs = [i for i, (z, xy) in enumerate(zip(reversed(xy_binary), reversed(z_binary))) if z != xy]
-# Futher reduce candidates by ignoring following errors (~next two bits) that result from the carry bit
-new_diffs = []
+filtered_diffs = []
 for i, d in enumerate(diffs):
-    if i == 0:
-        new_diffs.append(d)
-        continue
-    if d - diffs[i - 1] > 2:
-        new_diffs.append(d)
-diffs = new_diffs
-print(f'Part Two: {", ".join(map(str, diffs))}')
+    if i == 0 or d - diffs[i - 1] > 2:
+        filtered_diffs.append(d)
+print(f'Part Two: {", ".join(map(str, filtered_diffs))}')
 
 # Visualize the circuit
 dot = Digraph(format="png")
