@@ -62,8 +62,17 @@ y_binary = ''.join(str(y_wires[w]) for w in sorted(y_wires, reverse=True))
 y_decimal = int(y_binary, 2)
 xy_decimal = x_decimal + y_decimal
 xy_binary = bin(xy_decimal)[2:]
-diff = [i for i, (z, xy) in enumerate(zip(reversed(xy_binary), reversed(z_binary))) if z != xy]
-print(diff)
+diffs = [i for i, (z, xy) in enumerate(zip(reversed(xy_binary), reversed(z_binary))) if z != xy]
+# Futher reduce candidates by ignoring following errors (~next two bits) that result from the carry bit
+new_diffs = []
+for i, d in enumerate(diffs):
+    if i == 0:
+        new_diffs.append(d)
+        continue
+    if d - diffs[i - 1] > 2:
+        new_diffs.append(d)
+diffs = new_diffs
+print(f'Part Two: {", ".join(map(str, diffs))}')
 
 # Visualize the circuit
 dot = Digraph(format="png")
