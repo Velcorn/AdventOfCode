@@ -1,5 +1,5 @@
 # Read input as string
-with open("01_input.txt", 'r') as file:
+with open("01-input.txt", 'r') as file:
     directions = file.read()
 
 # Count the number of open and close parentheses

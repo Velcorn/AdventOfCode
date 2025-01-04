@@ -1,7 +1,6 @@
 import networkx as nx
 from collections import deque
 from graphviz import Digraph
-from itertools import combinations
 
 
 def simulate_circuit(wvs, wcs, bits=None):
@@ -72,6 +71,12 @@ for i, d in enumerate(diffs):
     if i == 0 or d - diffs[i - 1] > 2:
         filtered_diffs.append(d)
 print(f'Part Two: {", ".join(map(str, filtered_diffs))}')
+
+# Iterate over all collision points to find the swapped wires
+swapped_wires = []
+for i, d in enumerate(filtered_diffs):
+    # Check all wires in the adder aside from xi and yi
+    s11, s12 = list(graph.successors(f'x{str(d).zfill(2)}'))
 
 # Visualize the circuit
 dot = Digraph(format="png")
