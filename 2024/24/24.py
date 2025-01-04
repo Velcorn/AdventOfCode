@@ -79,13 +79,6 @@ for node in graph.nodes:
     dot.node(node)
 for edge in graph.edges(data=True):
     gate = edge[2].get('gate', '')
-    if gate == 'AND':
-        color = 'green'
-    elif gate == 'OR':
-        color = 'red'
-    elif gate == 'XOR':
-        color = 'blue'
-    else:
-        color = 'black'
+    color = 'red' if gate == 'OR' else 'green' if gate == 'AND' else 'blue'
     dot.edge(edge[0], edge[1], color=color)
 dot.render("24_circuit", view=True)
