@@ -15,18 +15,8 @@ func must(err error) {
 	}
 }
 
-func min(nums ...int) int {
-	m := nums[0]
-	for _, n := range nums[1:] {
-		if n < m {
-			m = n
-		}
-	}
-	return m
-}
-
 func main() {
-	// Read input as list of strings
+	// Read input of strings line by line
 	file, err := os.Open("2015/02/02-input.txt")
 	if err != nil {
 		panic(err)
@@ -43,7 +33,7 @@ func main() {
 		l, w, h := dims[0], dims[1], dims[2]
 
 		// Calculate wrapping paper
-		wrap += 2*l*w + 2*w*h + 2*h*l + min(l*w, w*h, h*l)
+		wrap += 2*l*w + 2*w*h + 2*h*l + min(min(l*w, w*h), h*l)
 
 		// Calculate ribbon
 		sort.Ints(dims)
