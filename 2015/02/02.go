@@ -9,21 +9,13 @@ import (
 	"strings"
 )
 
-func must(err error) {
-	if err != nil {
-		panic(err)
-	}
-}
-
 func main() {
-	// Read input of strings line by line
 	file, err := os.Open("2015/02/02-input.txt")
 	if err != nil {
 		panic(err)
 	}
-
-	var wrap, ribbon int
 	scanner := bufio.NewScanner(file)
+	var wrap, ribbon int
 	for scanner.Scan() {
 		// Parse dimensions
 		dims := make([]int, 3)
@@ -46,4 +38,10 @@ func main() {
 
 	// Part Two: Total feet of ribbon
 	fmt.Printf("Part Two: %d\n", ribbon)
+}
+
+func must(err error) {
+	if err != nil {
+		panic(err)
+	}
 }

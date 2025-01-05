@@ -8,13 +8,7 @@ import (
 	"strconv"
 )
 
-func getMD5Hash(text string) string {
-	hash := md5.Sum([]byte(text))
-	return hex.EncodeToString(hash[:])
-}
-
 func main() {
-	// Read input as string
 	data, err := os.ReadFile("2015/04/04-input.txt")
 	if err != nil {
 		panic(err)
@@ -45,4 +39,9 @@ func main() {
 
 	// Part Two: The lowest positive integer that produces an MD5 hash with six leading zeros
 	fmt.Printf("Part Two: %d\n", partTwo)
+}
+
+func getMD5Hash(text string) string {
+	hash := md5.Sum([]byte(text))
+	return hex.EncodeToString(hash[:])
 }

@@ -2,12 +2,11 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
+	"os"
 )
 
 func main() {
-	// Read input as string
-	data, err := ioutil.ReadFile("2015/03/03-input.txt")
+	data, err := os.ReadFile("2015/03/03-input.txt")
 	if err != nil {
 		panic(err)
 	}

@@ -7,6 +7,32 @@ import (
 	"strings"
 )
 
+func main() {
+	file, err := os.Open("2015/05/05-input.txt")
+	if err != nil {
+		panic(err)
+	}
+	scanner := bufio.NewScanner(file)
+	nice := 0
+	niceTwo := 0
+	for scanner.Scan() {
+		str := scanner.Text()
+		if isNice(str) {
+			nice++
+		}
+		if isNiceTwo(str) {
+			niceTwo++
+		}
+	}
+	defer must(file.Close())
+
+	// Part One: The number of strings that are nice
+	fmt.Printf("Part One: %d\n", nice)
+
+	// Part Two: The number of strings that are nice two
+	fmt.Printf("Part Two: %d\n", niceTwo)
+}
+
 func must(err error) {
 	if err != nil {
 		panic(err)
@@ -77,32 +103,4 @@ func isNiceTwo(str string) bool {
 	}
 
 	return false
-}
-
-func main() {
-	// Read input of strings line by line
-	file, err := os.Open("2015/05/05-input.txt")
-	if err != nil {
-		panic(err)
-	}
-
-	nice := 0
-	niceTwo := 0
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		str := scanner.Text()
-		if isNice(str) {
-			nice++
-		}
-		if isNiceTwo(str) {
-			niceTwo++
-		}
-	}
-	defer must(file.Close())
-
-	// Part One: The number of strings that are nice
-	fmt.Printf("Part One: %d\n", nice)
-
-	// Part Two: The number of strings that are nice two
-	fmt.Printf("Part Two: %d\n", niceTwo)
 }

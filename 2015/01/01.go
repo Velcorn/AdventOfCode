@@ -6,13 +6,10 @@ import (
 )
 
 func main() {
-	// Read input as string
 	file, err := os.ReadFile("2015/01/01-input.txt")
 	if err != nil {
 		panic(err)
 	}
-
-	// Convert file to string
 	directions := string(file)
 
 	// Count the number of open and close parentheses
