@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"math"
 	"os"
 	"strconv"
 	"strings"
@@ -14,7 +15,6 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	defer file.Close()
 
 	// Create the graph
 	graph := NewGraph()
@@ -23,9 +23,6 @@ func main() {
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		parts := strings.Fields(scanner.Text())
-		if len(parts) != 5 {
-			panic("Invalid input format")
-		}
 		city1, city2, stringDistance := parts[0], parts[2], parts[4]
 		distance, err := strconv.Atoi(stringDistance)
 		if err != nil {
@@ -33,20 +30,12 @@ func main() {
 		}
 		graph.AddEdge(city1, city2, distance) // Handles undirected edges
 	}
+	must(file.Close())
 
-	if err := scanner.Err(); err != nil {
-		panic(err)
-	}
-
-	// Part One: The distance of the shortest route, visiting all cities
-	distances := dijkstra(graph, "Arbre") // Replace "Arbre" with an actual city name in your input
-	shortest := -1
-	for _, distance := range distances {
-		if shortest == -1 || distance < shortest {
-			shortest = distance
-		}
-	}
+	// Part One/Two: The distance of the shortest/longest route, visiting all cities
+	shortest, longest := heldKarp(graph)
 	fmt.Printf("Part One: %d\n", shortest)
+	fmt.Printf("Part Two: %d\n", longest)
 }
 
 // Graph defines the graph structure
@@ -74,34 +63,77 @@ func (g *Graph) AddEdge(city1, city2 string, distance int) {
 	g.Nodes[city2][city1] = distance // Ensure undirected graph
 }
 
-// dijkstra calculates the shortest paths from a start node
-func dijkstra(graph *Graph, start string) map[string]int {
-	distances := make(map[string]int)
-	visited := make(map[string]bool)
-
-	// Initialize distances with infinity
+// heldKarp solves the TSP for both shortest and longest paths
+func heldKarp(graph *Graph) (int, int) {
+	// Map cities to indices
+	cities := make([]string, 0, len(graph.Nodes))
+	cityIndex := make(map[string]int)
 	for city := range graph.Nodes {
-		distances[city] = 1<<31 - 1 // Max int value
+		cityIndex[city] = len(cities)
+		cities = append(cities, city)
 	}
-	distances[start] = 0
 
-	for len(visited) < len(graph.Nodes) {
-		current := ""
-		for city := range graph.Nodes {
-			if !visited[city] && (current == "" || distances[city] < distances[current]) {
-				current = city
-			}
-		}
-		if current == "" {
-			break
-		}
-		visited[current] = true
-		for neighbor, distance := range graph.Nodes[current] {
-			newDist := distances[current] + distance
-			if newDist < distances[neighbor] {
-				distances[neighbor] = newDist
+	n := len(cities)
+	inf := math.MaxInt
+	dist := make([][]int, n)
+	for i := range dist {
+		dist[i] = make([]int, n)
+		for j := range dist[i] {
+			if d, ok := graph.Nodes[cities[i]][cities[j]]; ok {
+				dist[i][j] = d
+			} else {
+				dist[i][j] = inf
 			}
 		}
 	}
-	return distances
+
+	// Memoization for shortest and longest distances
+	meMin := make([][]int, 1<<n)
+	meMax := make([][]int, 1<<n)
+	for i := range meMin {
+		meMin[i] = make([]int, n)
+		meMax[i] = make([]int, n)
+		for j := range meMin[i] {
+			meMin[i][j] = inf
+			meMax[i][j] = 0
+		}
+	}
+
+	// Base case: starting at each city
+	for i := 0; i < n; i++ {
+		meMin[1<<i][i] = 0
+		meMax[1<<i][i] = 0
+	}
+
+	// State transition
+	for mask := 1; mask < (1 << n); mask++ {
+		for i := 0; i < n; i++ {
+			if mask&(1<<i) == 0 {
+				continue
+			}
+			for j := 0; j < n; j++ {
+				if mask&(1<<j) != 0 || dist[i][j] == inf {
+					continue
+				}
+				newMask := mask | (1 << j)
+				meMin[newMask][j] = min(meMin[newMask][j], meMin[mask][i]+dist[i][j])
+				meMax[newMask][j] = max(meMax[newMask][j], meMax[mask][i]+dist[i][j])
+			}
+		}
+	}
+
+	// Extract shortest and longest tours
+	shortest, longest := inf, 0
+	finalMask := (1 << n) - 1
+	for i := 0; i < n; i++ {
+		shortest = min(shortest, meMin[finalMask][i])
+		longest = max(longest, meMax[finalMask][i])
+	}
+	return shortest, longest
+}
+
+func must(err error) {
+	if err != nil {
+		panic(err)
+	}
 }
