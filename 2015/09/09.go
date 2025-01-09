@@ -28,7 +28,7 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
-		graph.AddEdge(city1, city2, distance) // Handles undirected edges
+		graph.AddEdge(city1, city2, distance)
 	}
 	must(file.Close())
 
@@ -60,7 +60,7 @@ func (g *Graph) AddEdge(city1, city2 string, distance int) {
 	g.AddNode(city1)
 	g.AddNode(city2)
 	g.Nodes[city1][city2] = distance
-	g.Nodes[city2][city1] = distance // Ensure undirected graph
+	g.Nodes[city2][city1] = distance
 }
 
 // heldKarp solves the TSP for both shortest and longest paths
