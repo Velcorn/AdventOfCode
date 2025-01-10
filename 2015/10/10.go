@@ -3,10 +3,11 @@ package main
 import (
 	"fmt"
 	"os"
+	"strings"
 )
 
 func main() {
-	// Read the input file as single string
+	// Read the input file as a single string
 	data, err := os.ReadFile("2015/10/10-input.txt")
 	if err != nil {
 		panic(err)
@@ -14,35 +15,34 @@ func main() {
 	sequence := string(data)
 
 	// Part One: The length of the resulting sequence after 40 iterations
-	lenquence := sequenceLength(sequence, 40)
-	fmt.Printf("Part One: %d\n", lenquence)
+	length := lookAndSay(sequence, 40)
+	fmt.Printf("Part One: %d\n", length)
 
 	// Part Two: The length of the resulting sequence after 50 iterations
-	lenquence = sequenceLength(sequence, 50)
-	fmt.Printf("Part One: %d\n", lenquence)
+	length = lookAndSay(sequence, 50)
+	fmt.Printf("Part Two: %d\n", length)
 }
 
-func sequenceLength(sequence string, iterations int) int {
-	// Base case
+// lookAndSay recursively generates the Look-and-Say sequence for a given number of iterations and returns its length.
+func lookAndSay(sequence string, iterations int) int {
 	if iterations == 0 {
 		return len(sequence)
 	}
 
 	// Generate the next sequence
-	var newSequence string
+	var next strings.Builder
 	count := 1
-	char := sequence[0]
 	for i := 1; i < len(sequence); i++ {
-		if sequence[i] == char {
+		if sequence[i] == sequence[i-1] {
 			count++
 		} else {
-			newSequence += fmt.Sprintf("%d%c", count, char)
-			char = sequence[i]
+			next.WriteString(fmt.Sprintf("%d%c", count, sequence[i-1]))
 			count = 1
 		}
 	}
 	// Append the last group
-	newSequence += fmt.Sprintf("%d%c", count, char)
+	next.WriteString(fmt.Sprintf("%d%c", count, sequence[len(sequence)-1]))
 
-	return sequenceLength(newSequence, iterations-1)
+	// Recur for the next iteration
+	return lookAndSay(next.String(), iterations-1)
 }
